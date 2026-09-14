@@ -295,6 +295,7 @@
   >
     <a-assets>
       <a-asset-item id="model-0" src="./coin.glb"></a-asset-item>
+      <a-asset-item id="model-1" src="./REPLACE-WITH-YOUR-SECOND-MODEL.glb"></a-asset-item>
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -405,7 +406,13 @@
 
         if (!hasStartedAR) {
           if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            await navigator.mediaDevices.getUserMedia({ video: true });
+            // Only used to trigger the permission prompt. MUST stop these
+            // tracks immediately -- leaving this stream open was blocking
+            // MindAR's own camera request right after it, which is very
+            // likely why the screen stayed white/blank even after you'd
+            // already granted permission.
+            const primingStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            primingStream.getTracks().forEach((track) => track.stop());
           }
 
           const mindarSystem = sceneEl.systems["mindar-image-system"];
