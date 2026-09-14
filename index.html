@@ -26,14 +26,9 @@
       margin: 0;
       overflow: hidden;
       background: transparent;
-      touch-action: manipulation;
+      touch-action: none; /* Prevents mobile scroll interfere with 3D drag */
     }
 
-    /* Keep MindAR's own camera feed / canvas full-screen and behind the
-       AR scene. Scoped to MindAR's own classed elements only -- do not
-       widen this to a blanket "video" selector, that's what caused a
-       black-screen bug in an earlier build by fighting MindAR's own
-       internal styling. */
     video.mindar-video {
       position: fixed !important;
       inset: 0 !important;
@@ -52,7 +47,7 @@
       height: 100vh !important;
       z-index: 1 !important;
       display: block !important;
-      pointer-events: none !important;
+      pointer-events: auto !important; /* ENABLED FOR ROTATION TOUCH */
     }
 
     a-scene, .a-canvas {
@@ -63,15 +58,12 @@
       z-index: 2 !important;
       display: block !important;
       background: transparent !important;
+      pointer-events: auto !important; /* ENABLED FOR ROTATION TOUCH */
     }
 
     .a-enter-vr, .a-enter-ar, .a-orientation-modal, .a-loader-title {
       display: none !important;
     }
-
-    /* ------------------------------------------------------------- */
-    /* Entry screen -- same retro system as MEMEVERSE                */
-    /* ------------------------------------------------------------- */
 
     #entry-screen {
       position: fixed;
@@ -155,10 +147,6 @@
       box-shadow: 1px 1px 0 #241a14;
     }
 
-    /* ------------------------------------------------------------- */
-    /* Scan HUD                                                      */
-    /* ------------------------------------------------------------- */
-
     #scan-hud {
       position: fixed;
       inset: 0;
@@ -209,10 +197,6 @@
       white-space: nowrap;
     }
 
-    /* ------------------------------------------------------------- */
-    /* Error toast                                                   */
-    /* ------------------------------------------------------------- */
-
     #ar-error-toast {
       position: fixed;
       bottom: 26px;
@@ -232,10 +216,6 @@
     }
     #ar-error-toast.visible { display: block; }
 
-    /* ------------------------------------------------------------- */
-    /* Ambient particles while scanning                              */
-    /* ------------------------------------------------------------- */
-
     #ambient-layer {
       position: fixed;
       inset: 0;
@@ -251,10 +231,6 @@
       background: #1b6b67;
       opacity: 0;
     }
-
-    /* ------------------------------------------------------------- */
-    /* Cafe brand watermark -- bottom corner, transparent background */
-    /* ------------------------------------------------------------- */
 
     #brand-watermark {
       position: fixed;
@@ -318,37 +294,30 @@
     embedded
   >
     <a-assets>
-      <!-- PLACEHOLDER MODELS -- swap these two a-asset-item src paths for
-           your real objects (coin-box phone, cassette, etc.) once you have
-           them exported as .gltf/.glb. Everything else below (roster,
-           listeners, reveal animation) stays the same -- just add more
-           <a-asset-item> + more target entities the same way. -->
       <a-asset-item id="model-0" src="./coin.glb"></a-asset-item>
-     
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- 0: placeholder (swap for e.g. "Coin-Box Phone") -->
+    <!-- Scale increased from 0.05 to 0.3 -->
     <a-entity id="target-0" mindar-image-target="targetIndex: 0">
       <a-entity
         id="model-entity-0"
         gltf-model="#model-0"
         rotation="0 0 0"
         position="0 -0.25 0"
-        scale="0.05 0.05 0.05"
+        scale="0.3 0.3 0.3"
         animation-mixer
       ></a-entity>
     </a-entity>
 
-    <!-- 1: placeholder (swap for e.g. "Cassette Tape") -->
     <a-entity id="target-1" mindar-image-target="targetIndex: 1">
       <a-entity
         id="model-entity-1"
         gltf-model="#model-1"
         rotation="0 0 0"
         position="0 -0.25 0"
-        scale="0.05 0.05 0.05"
+        scale="0.3 0.3 0.3"
         animation-mixer
       ></a-entity>
     </a-entity>
@@ -362,9 +331,8 @@
     const errorToast = document.querySelector("#ar-error-toast");
     const ambientLayer = document.querySelector("#ambient-layer");
 
-    // One entry per object. Add more objects later by adding a row here,
-    // one more <a-asset-item>, and one more <a-entity mindar-image-target>
-    // block above with the next targetIndex.
+    const TARGET_SCALE = 0.3; // Centralized scale property for animation sync
+
     const ROSTER = [
       { index: 0, name: "Placeholder (raccoon) -- swap for Coin-Box Phone" },
       { index: 1, name: "Placeholder (bear) -- swap for Cassette Tape" }
@@ -379,10 +347,6 @@
 
     let hasStartedAR = false;
     let activeIndex = null;
-
-    /* ------------------------------------------------------------- */
-    /* Web Audio UI sounds -- same pattern as MEMEVERSE               */
-    /* ------------------------------------------------------------- */
 
     let audioCtx = null;
     function getAudioCtx() {
@@ -412,10 +376,6 @@
     const playTapSound = () => playTone({ freq: 420, endFreq: 620, duration: 0.15, type: "sine", volume: 0.2 });
     const playLockOnChime = () => playTone({ freq: 620, endFreq: 980, duration: 0.28, type: "triangle", volume: 0.28 });
 
-    /* ------------------------------------------------------------- */
-    /* Entry screen animation                                        */
-    /* ------------------------------------------------------------- */
-
     gsap.set("#entry-title, #entry-subtitle, #entry-hint, #entry-btn", { opacity: 0 });
     gsap.set("#entry-title", { scale: 0.7 });
     gsap.to("#entry-sunburst", { rotate: 360, duration: 50, repeat: -1, ease: "none" });
@@ -432,20 +392,27 @@
 
     sceneEl.addEventListener("arError", (event) => {
       console.error("90's MACHINE: MindAR camera error:", event.detail);
-      errorToast.textContent = "Camera could not start. Allow camera permission and open this site using HTTPS or localhost.";
+      errorToast.textContent = "Camera could not start. Ensure camera permission is granted and running via HTTPS.";
       errorToast.classList.add("visible");
     });
 
+    // Camera fix: Request user media permission explicitly before running MindAR engine
     entryBtn.addEventListener("click", async () => {
       try {
         const ctx = getAudioCtx();
         if (ctx.state === "suspended") await ctx.resume();
         playTapSound();
 
-        const mindarSystem = sceneEl.systems["mindar-image-system"];
-        if (mindarSystem && !hasStartedAR) {
-          hasStartedAR = true;
-          await mindarSystem.start();
+        if (!hasStartedAR) {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            await navigator.mediaDevices.getUserMedia({ video: true });
+          }
+
+          const mindarSystem = sceneEl.systems["mindar-image-system"];
+          if (mindarSystem) {
+            await mindarSystem.start();
+            hasStartedAR = true;
+          }
         }
 
         gsap.to("#entry-screen", {
@@ -463,25 +430,20 @@
         });
       } catch (error) {
         console.error("90's MACHINE: Start error:", error);
-        errorToast.textContent = "Could not open the camera. Please allow camera permission, then reload.";
+        errorToast.textContent = "Could not open camera. Allow camera permissions and reload.";
         errorToast.classList.add("visible");
       }
     });
 
-    /* ------------------------------------------------------------- */
-    /* Reveal / hide -- objects pop in with an elastic overshoot,     */
-    /* same feel as MEMEVERSE's frame+video pop-in.                  */
-    /* ------------------------------------------------------------- */
-
     function revealSequence(t) {
       if (t.modelEntity && t.modelEntity.object3D) {
         gsap.killTweensOf(t.modelEntity.object3D.scale);
-        t.modelEntity.object3D.rotation.set(0, 0, 0); // start each reveal from neutral
+        t.modelEntity.object3D.rotation.set(0, 0, 0);
 
         gsap.fromTo(
           t.modelEntity.object3D.scale,
-          { x: 0.0005, y: 0.0005, z: 0.0005 },
-          { x: 0.05, y: 0.05, z: 0.05, duration: 0.5, ease: "elastic.out(1, 0.55)" }
+          { x: 0.001, y: 0.001, z: 0.001 },
+          { x: TARGET_SCALE, y: TARGET_SCALE, z: TARGET_SCALE, duration: 0.5, ease: "elastic.out(1, 0.55)" }
         );
       }
     }
@@ -491,24 +453,17 @@
         gsap.killTweensOf(t.modelEntity.object3D.scale);
 
         gsap.to(t.modelEntity.object3D.scale, {
-          x: 0.0005, y: 0.0005, z: 0.0005,
+          x: 0.001, y: 0.001, z: 0.001,
           duration: 0.2,
           ease: "power1.in"
         });
       }
     }
 
-    /* ------------------------------------------------------------- */
-    /* Finger drag-to-rotate -- Sketchfab-style manual orbit. The     */
-    /* object stays still until the visitor actually drags; it never */
-    /* spins on its own. Works with touch AND mouse via Pointer       */
-    /* Events, and only rotates whichever object is currently active */
-    /* (activeIndex), since only one is ever visible at a time.       */
-    /* ------------------------------------------------------------- */
-
-    const DRAG_SENSITIVITY_Y = 0.008;  // left/right drag -> spin around vertical axis
-    const DRAG_SENSITIVITY_X = 0.006;  // up/down drag -> tilt forward/back
-    const TILT_LIMIT = Math.PI / 3;    // clamp tilt to +-60deg so it can't flip upside down
+    /* Rotation control fixed for Touch & Pointer events */
+    const DRAG_SENSITIVITY_Y = 0.008;
+    const DRAG_SENSITIVITY_X = 0.006;
+    const TILT_LIMIT = Math.PI / 3;
 
     let isDragging = false;
     let lastPointerX = 0;
@@ -520,14 +475,14 @@
       return active && active.modelEntity ? active.modelEntity.object3D : null;
     }
 
-    document.addEventListener("pointerdown", (event) => {
-      if (activeIndex === null) return; // nothing visible to rotate yet
+    window.addEventListener("pointerdown", (event) => {
+      if (activeIndex === null) return;
       isDragging = true;
       lastPointerX = event.clientX;
       lastPointerY = event.clientY;
     });
 
-    document.addEventListener("pointermove", (event) => {
+    window.addEventListener("pointermove", (event) => {
       if (!isDragging) return;
 
       const obj3D = getActiveModelObject3D();
@@ -539,7 +494,6 @@
       lastPointerY = event.clientY;
 
       obj3D.rotation.y += deltaX * DRAG_SENSITIVITY_Y;
-
       obj3D.rotation.x += deltaY * DRAG_SENSITIVITY_X;
       obj3D.rotation.x = Math.max(-TILT_LIMIT, Math.min(TILT_LIMIT, obj3D.rotation.x));
     });
@@ -547,24 +501,18 @@
     function endDrag() {
       isDragging = false;
     }
-    document.addEventListener("pointerup", endDrag);
-    document.addEventListener("pointercancel", endDrag);
-    document.addEventListener("pointerleave", endDrag);
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
 
-    // Same single-active-target guard as MEMEVERSE -- avoids two objects
-    // popping in simultaneously if the camera briefly catches two targets.
     targets.forEach((t) => {
       if (!t.targetEntity) return;
 
       t.targetEntity.addEventListener("targetFound", () => {
         if (activeIndex !== null && activeIndex !== t.index) return;
 
-        console.log(`90's MACHINE: Target found - ${t.name}`);
         activeIndex = t.index;
-
         scanHud.classList.remove("visible");
         stopAmbientParticles();
-
         playLockOnChime();
         revealSequence(t);
       });
@@ -572,9 +520,7 @@
       t.targetEntity.addEventListener("targetLost", () => {
         if (activeIndex !== t.index) return;
 
-        console.log(`90's MACHINE: Target lost - ${t.name}`);
         activeIndex = null;
-
         hideSequence(t);
 
         if (entryScreen.classList.contains("hidden")) {
@@ -583,10 +529,6 @@
         }
       });
     });
-
-    /* ------------------------------------------------------------- */
-    /* Ambient particles while scanning                              */
-    /* ------------------------------------------------------------- */
 
     let ambientTimer = null;
 
@@ -619,11 +561,10 @@
       }
     }
 
-    /* Start every object hidden until its target is found */
     sceneEl.addEventListener("loaded", () => {
       targets.forEach((t) => {
         if (t.modelEntity && t.modelEntity.object3D) {
-          t.modelEntity.object3D.scale.set(0.0005, 0.0005, 0.0005);
+          t.modelEntity.object3D.scale.set(0.001, 0.001, 0.001);
         }
       });
     });
