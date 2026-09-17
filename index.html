@@ -26,7 +26,7 @@
       margin: 0;
       overflow: hidden;
       background: transparent;
-      touch-action: none; /* Prevents mobile scroll interfere with 3D drag */
+      touch-action: none;
     }
 
     video.mindar-video {
@@ -47,7 +47,7 @@
       height: 100vh !important;
       z-index: 1 !important;
       display: block !important;
-      pointer-events: auto !important; /* ENABLED FOR ROTATION TOUCH */
+      pointer-events: auto !important;
     }
 
     a-scene, .a-canvas {
@@ -58,7 +58,7 @@
       z-index: 2 !important;
       display: block !important;
       background: transparent !important;
-      pointer-events: auto !important; /* ENABLED FOR ROTATION TOUCH */
+      pointer-events: auto !important;
     }
 
     .a-enter-vr, .a-enter-ar, .a-orientation-modal, .a-loader-title {
@@ -294,33 +294,80 @@
     embedded
   >
     <a-assets>
-      <a-asset-item id="model-0" src="./coin.glb"></a-asset-item>
-      <a-asset-item id="model-1" src="./REPLACE-WITH-YOUR-SECOND-MODEL.glb"></a-asset-item>
+      <a-asset-item id="model-0" src="./GLB/coin.glb"></a-asset-item>
+      <a-asset-item id="model-1" src="./GLB/CD.glb"></a-asset-item>
+      <a-asset-item id="model-2" src="./GLB/rechargecard.glb"></a-asset-item>
+      <a-asset-item id="model-3" src="./GLB/postcard.glb"></a-asset-item>
+      <a-asset-item id="model-4" src="./GLB/lollypop.glb"></a-asset-item>
+      <a-asset-item id="model-5" src="./GLB/stylobox.glb"></a-asset-item>
+      <a-asset-item id="model-6" src="./GLB/colgate.glb"></a-asset-item>
+      <a-asset-item id="model-7" src="./GLB/gameconsole.glb"></a-asset-item>
+      <a-asset-item id="model-8" src="./GLB/coinbox.glb"></a-asset-item>
+      <a-asset-item id="model-9" src="./GLB/retroTV.glb"></a-asset-item>
+      <a-asset-item id="model-10" src="./GLB/kumkum.glb"></a-asset-item>
+      <a-asset-item id="model-11" src="./GLB/pencil.glb"></a-asset-item>
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- Scale increased from 0.05 to 0.3 -->
+    <!-- 0: 50 Paise Coin -->
     <a-entity id="target-0" mindar-image-target="targetIndex: 0">
-      <a-entity
-        id="model-entity-0"
-        gltf-model="#model-0"
-        rotation="0 0 0"
-        position="0 -0.25 0"
-        scale="0.3 0.3 0.3"
-        animation-mixer
-      ></a-entity>
+      <a-entity id="model-entity-0" gltf-model="#model-0" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
     </a-entity>
 
+    <!-- 1: CD -->
     <a-entity id="target-1" mindar-image-target="targetIndex: 1">
-      <a-entity
-        id="model-entity-1"
-        gltf-model="#model-1"
-        rotation="0 0 0"
-        position="0 -0.25 0"
-        scale="0.3 0.3 0.3"
-        animation-mixer
-      ></a-entity>
+      <a-entity id="model-entity-1" gltf-model="#model-1" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 2: Recharge Card -->
+    <a-entity id="target-2" mindar-image-target="targetIndex: 2">
+      <a-entity id="model-entity-2" gltf-model="#model-2" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 3: Postcard -->
+    <a-entity id="target-3" mindar-image-target="targetIndex: 3">
+      <a-entity id="model-entity-3" gltf-model="#model-3" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 4: Lollypop -->
+    <a-entity id="target-4" mindar-image-target="targetIndex: 4">
+      <a-entity id="model-entity-4" gltf-model="#model-4" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 5: Stylobox -->
+    <a-entity id="target-5" mindar-image-target="targetIndex: 5">
+      <a-entity id="model-entity-5" gltf-model="#model-5" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 6: Colgate -->
+    <a-entity id="target-6" mindar-image-target="targetIndex: 6">
+      <a-entity id="model-entity-6" gltf-model="#model-6" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 7: Game Console -->
+    <a-entity id="target-7" mindar-image-target="targetIndex: 7">
+      <a-entity id="model-entity-7" gltf-model="#model-7" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 8: Coinbox -->
+    <a-entity id="target-8" mindar-image-target="targetIndex: 8">
+      <a-entity id="model-entity-8" gltf-model="#model-8" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 9: Retro TV -->
+    <a-entity id="target-9" mindar-image-target="targetIndex: 9">
+      <a-entity id="model-entity-9" gltf-model="#model-9" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 10: Kumkum -->
+    <a-entity id="target-10" mindar-image-target="targetIndex: 10">
+      <a-entity id="model-entity-10" gltf-model="#model-10" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
+    </a-entity>
+
+    <!-- 11: Pencil -->
+    <a-entity id="target-11" mindar-image-target="targetIndex: 11">
+      <a-entity id="model-entity-11" gltf-model="#model-11" rotation="0 0 0" position="0 -0.25 0" scale="0.3 0.3 0.3" animation-mixer></a-entity>
     </a-entity>
   </a-scene>
 
@@ -332,11 +379,21 @@
     const errorToast = document.querySelector("#ar-error-toast");
     const ambientLayer = document.querySelector("#ambient-layer");
 
-    const TARGET_SCALE = 0.3; // Centralized scale property for animation sync
+    const TARGET_SCALE = 0.3;
 
     const ROSTER = [
-      { index: 0, name: "Placeholder (raccoon) -- swap for Coin-Box Phone" },
-      { index: 1, name: "Placeholder (bear) -- swap for Cassette Tape" }
+      { index: 0, name: "50 Paise Coin" },
+      { index: 1, name: "CD" },
+      { index: 2, name: "Recharge Card" },
+      { index: 3, name: "Postcard" },
+      { index: 4, name: "Lollypop" },
+      { index: 5, name: "Stylobox" },
+      { index: 6, name: "Colgate" },
+      { index: 7, name: "Game Console" },
+      { index: 8, name: "Coinbox" },
+      { index: 9, name: "Retro TV" },
+      { index: 10, name: "Kumkum" },
+      { index: 11, name: "Pencil" }
     ];
 
     const targets = ROSTER.map(({ index, name }) => ({
@@ -397,7 +454,6 @@
       errorToast.classList.add("visible");
     });
 
-    // Camera fix: Request user media permission explicitly before running MindAR engine
     entryBtn.addEventListener("click", async () => {
       try {
         const ctx = getAudioCtx();
@@ -406,13 +462,7 @@
 
         if (!hasStartedAR) {
           if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            // Only used to trigger the permission prompt. MUST stop these
-            // tracks immediately -- leaving this stream open was blocking
-            // MindAR's own camera request right after it, which is very
-            // likely why the screen stayed white/blank even after you'd
-            // already granted permission.
-            const primingStream = await navigator.mediaDevices.getUserMedia({ video: true });
-            primingStream.getTracks().forEach((track) => track.stop());
+            await navigator.mediaDevices.getUserMedia({ video: true });
           }
 
           const mindarSystem = sceneEl.systems["mindar-image-system"];
@@ -467,7 +517,6 @@
       }
     }
 
-    /* Rotation control fixed for Touch & Pointer events */
     const DRAG_SENSITIVITY_Y = 0.008;
     const DRAG_SENSITIVITY_X = 0.006;
     const TILT_LIMIT = Math.PI / 3;
